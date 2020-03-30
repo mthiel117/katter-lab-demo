@@ -1,0 +1,10 @@
+---
+# ansible-playbook vlans.yml
+- name: create vlans
+  gather_facts: no
+  hosts: localhost
+
+  tasks:
+
+  - name: Create vlans
+    template: src=./templates/vlans.j2 dest=./configlets/adcdemo_vlans.txt

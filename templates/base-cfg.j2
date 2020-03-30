@@ -1,0 +1,13 @@
+!
+hostname {{ switch.switch_hostname }}
+!
+interface Management1
+   description Management
+   ip address {{ switch.switch_mgmt_ip }}/{{ switch.bit_mask }}
+   no lldp transmit
+   no lldp receive
+!
+!
+management api http-commands
+   no shutdown
+!

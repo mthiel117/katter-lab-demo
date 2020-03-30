@@ -1,0 +1,10 @@
+---
+# ansible-playbook test.yml
+- name: Ping Hosts
+  gather_facts: no
+  hosts: all
+
+  tasks:
+
+  - name: Ping each host
+    ping:
