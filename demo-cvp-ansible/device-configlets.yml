@@ -1,0 +1,82 @@
+---
+
+# Usage:  ansible-playbook device-configlets.yml --tags (provision|rollback)
+# use tags to provision or rollback
+- name: Bind Configlets to Devices
+  hosts: CVP-1
+  connection: local
+  gather_facts: no
+  collections:
+    - arista.cvp
+  vars:
+    # Provide List of Devices to Bind Configlets
+    devices_to_modify_configlets:
+      - dc1-poe-leaf-sw1
+
+    # Device inventory for provision activity: bind configlets to each device
+    # WARNING: Configlets must already reside in CVP
+    devices_inventory:
+      dc1-poe-leaf-sw1:
+        name: dc1-poe-leaf-sw1
+        configlets:
+          - CVP_OU_DEMO_VLANS
+          - CVP_OU_DEMO_ALIASES
+          - CVP_OU_DEMO_dc1-poe-leaf-sw1
+
+    # Device inventory for rollback activity: unbind configlets, put back original configlets
+    devices_inventory_rollback:
+      dc1-poe-leaf-sw1:
+        name: dc1-poe-leaf-sw1
+        configlets:
+          - dc1-poe-leaf-sw1   ####  add in the current switch configlet here
+
+
+  tasks:
+      # Collect CVP Facts as init process
+    - name: "Gather CVP facts from {{inventory_hostname}}"
+      cv_facts:
+      register: cvp_facts
+      tags:
+        - always
+
+###################################################
+### Provision
+###################################################
+
+    # Bind Configlets to each device
+    - name: "Provision device configlets on {{inventory_hostname}}"
+      tags:
+        - provision
+      cv_device:
+        devices: "{{devices_inventory}}"
+        cvp_facts: '{{cvp_facts.ansible_facts}}'
+        device_filter: "{{devices_to_modify_configlets}}"
+      register: cvp_device
+
+    # Display action taken for each device
+    - name: Provision Tasks ready to be executed in CVP
+      tags:
+        - provision
+      debug:
+        msg: "{{cvp_device}}"
+
+###################################################
+### Rollback
+###################################################
+
+    # Rollback configlets to previous
+    - name: "Rollback configlet on devices on {{inventory_hostname}}"
+      tags:
+        - rollback
+      cv_device:
+        devices: "{{devices_inventory_rollback}}"
+        cvp_facts: '{{cvp_facts.ansible_facts}}'
+        device_filter: "{{devices_to_modify_configlets}}"
+      register: cvp_device
+
+    # Display action taken for each device
+    - name: Rollback Tasks ready to be executed in CVP
+      tags:
+        - rollback
+      debug:
+        msg: "{{cvp_device}}"
