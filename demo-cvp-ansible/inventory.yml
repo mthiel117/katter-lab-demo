@@ -5,3 +5,31 @@ all:
         CVP:
           hosts:
             CVP-1:
+# DC1 Fabric
+        DC1_FABRIC:
+          children:
+            DC1_SPINES:
+              hosts:
+                dc1-spine-sw1:
+                  ansible_host: 192.168.51.75
+                dc1-spine-sw2:
+                  ansible_host: 192.168.51.74
+            DC1_LEAFS:
+                hosts:
+                  dc1-leaf-sw1:
+                    ansible_host: 192.168.51.71
+                  dc1-leaf-sw2:
+                    ansible_host: 192.168.51.72
+                  dc1-leaf-sw4:
+                    ansible_host: 192.168.51.76
+                  dc1-poe-leaf-sw1:
+                    ansible_host: 192.168.51.86
+          vars:
+            ansible_connection: httpapi
+            ansible_network_os: eos
+            ansible_user: admin
+            ansible_ssh_pass: N3tsupp0rt
+            ansible_become: yes
+            ansible_become_method: enable
+            ansible_httpapi_use_ssl: true
+            ansible_httpapi_validate_certs: false
